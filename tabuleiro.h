@@ -1,29 +1,36 @@
-#define MAXSEQ 1000000
 #include "xadrez.h"
+
+#define MAXSEQ 1000000
+#define clear_screen() printf("\033[H\033[J");
 
 typedef struct casa_
 {
     wint_t peca;
     wint_t cor;
-    int col, linha;
+    char col;
+    int linha;
+    int qntMov;
     struct casa_ *cima, *baixo; 
     struct casa_ *ant, *prox;
-
 }Casa;
 
-typedef struct tabuleiro_{
+typedef struct tabuleiro
+{
     Casa *inicio;
 }Tabuleiro;
 
-Tabuleiro * criarTabuleiro(Tabuleiro *tab);
+
+Tabuleiro* criarTabuleiro(Tabuleiro *tab);
 void liberarTabuleiro(Tabuleiro *tab); 
-Casa* obter_peca(Tabuleiro *tab, int col, int linha ); 
-wint_t obter_cor_peca (Tabuleiro *tab, int col, int linha );
-Casa * inicializar_peca (Tabuleiro *tab, int col, int linha);
 void printarTabuleiro(Tabuleiro *tab);
+char corrigirColuna(int c);
+Casa * inicializar_tab (Tabuleiro *tab, int col, int linha);
 
-//proximo passo:
-    //void carregarPGN(Casa **tab, char *arquivo);
-    //int verificarJogada(Casa *tab);
+Casa* obter_peca(Tabuleiro *tab, int col, int linha ); 
+void excluir_peca (Tabuleiro *tab, int col, int linha);
+wint_t obter_cor_peca (Tabuleiro *tab, int col, int linha );
+void inserir_peca (Tabuleiro *tab, int col, int linha, wint_t peca);
 
- // https://pt.stackoverflow.com/questions/236842/como-criar-uma-matriz-din%C3%A2mica-usando-lista-encadeada-na-linguagem-c
+void carregar(Tabuleiro *tab, char const *arquivo);
+void rodar(Tabuleiro *tab, char *jogada, char* cor, char *numero);
+int verificarJogada(Tabuleiro *tab, char* jogada, char *cor);
