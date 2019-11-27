@@ -5,7 +5,8 @@
 
 typedef struct casa_{
     wint_t peca;
-    wint_t cor;
+    wint_t corFundo;   // para printar
+    char cor; // para a função procurar
     char col;
     int linha;
     int qntMov;
@@ -26,10 +27,9 @@ typedef struct tabuleiro{
 // Funções Essenciais
     void iniciarXadrez (Tabuleiro *tab, char const *arquivo);
     void printarTabuleiro (Tabuleiro *tab);
-    void realizarJogada (Tabuleiro *tab, char *jogada, char* cor, char *numero);
+    void lerJogada (Tabuleiro *tab, char *jogada, char* cor, char *numero);
      int verificarJogada (Tabuleiro *tab, char* jogada, char *cor);
-    void movimentar_peca (Tabuleiro *tab, char * jogada);
-    void movimentar (Tabuleiro *tab, char colOrig, int linhaOrig, char colDest, int linhaDest);
+   int tentar_movimentar (Tabuleiro *tab, char * jogada, char* cor);
 
 // Funções Auxiliares
     Casa *obter_peca (Tabuleiro *tab, int col, int linha ); 
@@ -39,3 +39,6 @@ typedef struct tabuleiro{
 
 // Liberar a Memória
     void liberarTabuleiro (Tabuleiro *tab);
+
+void verificarPromocao(Tabuleiro *tab);
+int testar(Tabuleiro *tab, char *jogada, char *cor);
