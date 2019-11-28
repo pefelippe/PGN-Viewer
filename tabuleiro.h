@@ -5,8 +5,8 @@
 
 typedef struct casa_{
     wint_t peca;
-    wint_t corFundo;   // para printar
-    char cor; // para a função procurar
+    wint_t corFundo;   // cor default
+    char cor;          // cor da peça ((se tiver))
     char col;
     int linha;
     int qntMov;
@@ -42,3 +42,4 @@ typedef struct tabuleiro{
 
 void verificarPromocao(Tabuleiro *tab);
 int testar(Tabuleiro *tab, char *jogada, char *cor);
+void inserir(Tabuleiro *tab, int coluna, int linha, int colunaDestino, int linhaDestino);

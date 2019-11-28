@@ -1,12 +1,15 @@
 // diferentes sites representam as peças de forma diferente. por padrão:
 // N - cavalo
-// R - rei
-// D - Rainha
+// K - rei
+// Q - Rainha
 // p - Peão (mas poderia ser vazio)
+// B - Bispo
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "tabuleiro.h"
 
 /* Funções Estruturais */
@@ -88,7 +91,7 @@ Casa* inicializar_tab (Tabuleiro *tab, int col, int linha){
 
     if (linha == 0 && col == 7 || linha == 0 && col == 0){
         e->peca = TORRE_BRANCA;
-        e->tipo = 'T';
+        e->tipo = 'R';
         e->cor = 'B';
 
     }
@@ -105,13 +108,13 @@ Casa* inicializar_tab (Tabuleiro *tab, int col, int linha){
     
     else if (linha == 0 && col == 3){
         e->peca = REI_BRANCO;
-        e->tipo = 'R';
+        e->tipo = 'K';
         e->cor = 'B';
     }
 
     else if (linha == 0 && col == 4){
         e->peca = RAINHA_BRANCA;
-        e->tipo = 'D';
+        e->tipo = 'Q';
         e->cor = 'B';
     }
 
@@ -125,7 +128,7 @@ Casa* inicializar_tab (Tabuleiro *tab, int col, int linha){
 
     if (linha == 7 && col == 7 || linha == 7 && col == 0){
         e->peca = TORRE_PRETA;
-        e->tipo = 'T';
+        e->tipo = 'R';
         e->cor = 'P';
     }
     
@@ -143,13 +146,13 @@ Casa* inicializar_tab (Tabuleiro *tab, int col, int linha){
     
     else if (linha == 7 && col == 3){
         e->peca = REI_BRANCO;
-        e->tipo = 'R';
+        e->tipo = 'K';
         e->cor = 'P';
     }
 
     else if (linha == 7 && col == 4){
         e->peca = RAINHA_PRETA;
-        e->tipo = 'D';
+        e->tipo = 'Q';
         e->cor = 'P';
     }
 
@@ -205,7 +208,7 @@ void iniciarXadrez(Tabuleiro *tab, char const *arquivo){
     }
 }
 
-void printarTabuleiro(Tabuleiro *tab){ // corrigir rainha preta
+void printarTabuleiro(Tabuleiro *tab){ // corrigir rainha preta  TEM UM REI BRANCO EM H2????????????????
     setlocale(LC_CTYPE, "");
 
     printf("\n SIMULAÇÃO XADREZ v1.0 \n\n\n");
@@ -256,55 +259,68 @@ void verificarPromocao(Tabuleiro *tab){
     }
 }
 
-int testar(Tabuleiro *tab, char *jogada, char *cor)
+int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e definir as posições corretas
 {
-     
     int coluna = 0;
     int linha = 0;
-    char colunaDestino;
-    int linhaDestino;
-    char peca = 'p';
+    char colunaDestino = 0;
+    int linhaDestino = 0;
+    char peca;
     int verificador = 0;   // se 0 - jogada invalida, se 1 - jogada valida, se  2 - ambiguidade.
     
-
     // ler a jogada e definir o DESTINO da peça:
-    if(strlen(jogada) == 2){
+    if(strlen(jogada) == 2) // peão
+    {
+        peca = 'p';
         linhaDestino = jogada[1] - '0'; // converte em int
         colunaDestino = jogada[0];
     }
 
-    else if(jogada[1] == 'x') // indica captura
+    else if (strlen(jogada) == 4) // se a jogada tem tam = 4, ou é captura ou jogada de desambiguidade
     {
-        if (!(jogada[0] == 'c' || jogada[0] == 'e')) 
-            peca = jogada[0];
+        peca = jogada[0];
         colunaDestino = jogada[2];
         linhaDestino = jogada[3] - '0';
-    } else {
+        
+        if (jogada[1] == 'x') // indica captura
+        {
+            if (islower(jogada[0])) // ambiguidade de peões 
+                peca = 'p';
+        }
+        else    // indica jogada de desambiguidade
+        {
+            peca = jogada[0];
+            coluna = converter_coluna_int(jogada[1]);
+            // precisa procurar a linha somente
+        }
+        
+    }
+    else // demais jogadas
+    {
         peca = jogada[0];
         colunaDestino = jogada[1];
         linhaDestino = jogada[2] - '0';
     }
 
-    colunaDestino = converter_coluna_int(colunaDestino);
-    linhaDestino = linhaDestino -1;
-
+    colunaDestino = converter_coluna_int(colunaDestino); // coluna recebe char, converter para int é necessário para utilizar a função de busca
+    linhaDestino = linhaDestino - 1 ;// no caso da implementação, começamos com 0
 
 
     // pré-testes
-    if (colunaDestino > 7 || colunaDestino < 0 || linhaDestino > 7 || linhaDestino < 0) return 0; // fora dos limites do xadrez
+    if (colunaDestino > 7 || colunaDestino < 0) return 0; // fora dos limites do xadrez
+    if (linhaDestino > 7 || linhaDestino < 0) return 0;
     Casa *teste = obter_peca(tab, colunaDestino, linhaDestino);
-    if(teste->peca != VAZIO  && jogada[1] != 'x') return 0; // posição ocupada
-
+    //if(teste->peca != VAZIO  && jogada[1] != 'x') return 0; // querer colocar a peça em uma posição ocupada NAO TA FUNCUIONADO BLZ
 
 
     // ler a jogada e definir a ORIGEM da peça:
     Casa *aux = tab->inicio;
     while(aux->prox != NULL) // procurar casa a casa uma peça válida para realizar a jogada
     {
-        if((aux->cor = cor[0]) && (aux->peca != VAZIO))
+        if(aux->tipo == peca)
         {
-            // PEAO :
-            if(aux->tipo == peca && peca == 'p') 
+            
+            if(peca == 'p') // PEAO 
             { 
                 coluna = colunaDestino;
                 if(cor[0] == 'B')
@@ -348,23 +364,50 @@ int testar(Tabuleiro *tab, char *jogada, char *cor)
                     }
                 }
             }
+            
+            else if (peca == 'N') // CAVALO
+            {
 
-            //else if (aux->tipo == peca && peca == 'p') 
+            } 
 
+            else if (peca == 'B') // BISPO
+            {
+            }
+
+            else if (peca == 'R') // TORRE
+            {
+
+            }
+            else if(peca == 'K') // REI
+            {
+
+            }
+            else if (peca == 'Q') // RAINHA
+            {
+
+            }
         }
 
         aux = aux->prox;
     }
-
-    printf("Coluna1: %c\n", corrigir_coluna_char(coluna));
-    printf("Linha2: %d\n", linha+1);
-    printf("Coluna2: %c\n", corrigir_coluna_char(colunaDestino));
-    printf("Linha2 : %d\n", linhaDestino+1);
+    printf("Antes: ");
+    printf("%c-", corrigir_coluna_char(coluna));
+    printf("%d\n", linha+1);
+    printf("Depois: ");
+    printf("%c-", corrigir_coluna_char(colunaDestino));
+    printf("%d\n", linhaDestino+1);
 
 
     if(verificador == 1)  // insere no tab
     { 
+        inserir(tab, coluna, linha, colunaDestino, linhaDestino);
+    }
+        verificador = 1;        // retirar ao acabar a função
+        return verificador;
+    
+}
 
+void inserir(Tabuleiro *tab, int coluna, int linha, int colunaDestino, int linhaDestino){
         Casa *ant = obter_peca(tab, coluna, linha);
         Casa *novo = obter_peca(tab, colunaDestino, linhaDestino);
 
@@ -374,14 +417,8 @@ int testar(Tabuleiro *tab, char *jogada, char *cor)
         ant->peca = VAZIO;
         ant->tipo = '\0';
 
-        verificarPromocao(tab);
-    }
-        verificador = 1;        // retirar ao acabar a função
-        return verificador;
-    
+        //verificarPromocao(tab);
 }
-
-
 
 /* Funções Auxiliares */
 
