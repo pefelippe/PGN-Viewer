@@ -27,7 +27,7 @@ typedef struct tabuleiro{
 // Funções Essenciais
     void iniciarXadrez (Tabuleiro *tab, char const *arquivo);
     void printarTabuleiro (Tabuleiro *tab);
-    void lerJogada (Tabuleiro *tab, char *jogada, char* cor, char *numero);
+    void lerJogada (Tabuleiro *tab, char *jogada, char* cor, int numero);
      int verificarJogada (Tabuleiro *tab, char* jogada, char *cor);
    int tentar_movimentar (Tabuleiro *tab, char * jogada, char* cor);
 

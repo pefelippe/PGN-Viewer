@@ -1,14 +1,21 @@
-// diferentes sites representam as peças de forma diferente. por padrão:
-// N - cavalo
-// K - rei
+// Falta fazer (ou terminar)
+// - Promoção do Peão (CORRIGIR)
+// - Movimentação : BISPO, RAINHA, REI, TORRE
+// - ROQUE
+// - ambiguidade da torre
+
+// R - Torre
+// N - Cavalo
+// K - Rei
 // Q - Rainha
-// p - Peão (mas poderia ser vazio)
+// p - Peão 
 // B - Bispo
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <ctype.h>
 #include "tabuleiro.h"
 
@@ -190,25 +197,21 @@ void iniciarXadrez(Tabuleiro *tab, char const *arquivo){
         {
             while(!feof(arq2))
             {
-                char aux[5];
-                char jogada1[10];
-                char jogada2[10];
+                char auxnum[3];
+                char jogadaB[10];
+                char jogadaP[10];
 
-                fscanf(arq2, "%s %s %s", aux, jogada1, jogada2);
+                fscanf(arq2, "%c.%s %s ", auxnum, jogadaB, jogadaP);
+                int num = auxnum[0] - '0';
 
-                // tirar um '.' mt chato que tava aparecendo em aux #gambiarra
-                int i = 0;
-                for(i = 0; i<strlen(aux); ) i++;
-                aux[i-1] = '\0';
-
-                lerJogada(tab, jogada1, "Brancas", aux);
-                lerJogada(tab, jogada2, "Pretas", aux);   
+                lerJogada(tab, jogadaB, "Brancas", num);
+                lerJogada(tab, jogadaP, "Pretas", num);   
             }
         }
     }
 }
 
-void printarTabuleiro(Tabuleiro *tab){ // corrigir rainha preta  TEM UM REI BRANCO EM H2????????????????
+void printarTabuleiro(Tabuleiro *tab){ // corrigir rainha preta  
     setlocale(LC_CTYPE, "");
 
     printf("\n SIMULAÇÃO XADREZ v1.0 \n\n\n");
@@ -222,7 +225,7 @@ void printarTabuleiro(Tabuleiro *tab){ // corrigir rainha preta  TEM UM REI BRAN
     printf("    a  b  c  d  e  f  g  h  \n");
 }
 
-void lerJogada (Tabuleiro *tab, char *jogada, char  *cor, char *numero){
+void lerJogada (Tabuleiro *tab, char *jogada, char  *cor, int numero){
     clear_screen();
 
     if ((testar(tab, jogada, cor)) == 1)
@@ -234,26 +237,31 @@ void lerJogada (Tabuleiro *tab, char *jogada, char  *cor, char *numero){
         return;  
     } 
 
+    else if ((testar(tab, jogada, cor)) == -1){
+        printarTabuleiro(tab);
+        printf("\n\tFim da simulação. \n");
+    } 
+
     else
     {
         printarTabuleiro(tab);
-        printf("Erro na jogada de número %s das peças %s - %s\n", numero, cor, jogada);
+        printf("Erro na jogada de número %d das peças %s - %s\n", numero, cor, jogada);
         exit(1);
     }
 }
 
-// Promoção do Peão
+// Promoção do Peão (CORRIGIR)
 void verificarPromocao(Tabuleiro *tab){
     Casa *aux;
 
-    for(int i = 0; i<8; i++){
-        aux = obter_peca(tab, 0, i);
+    for(int c = 0; c<8; c++){
+        aux = obter_peca(tab, c, 0);
         if(aux->peca == PEAO_PRETO)
             aux->peca = RAINHA_PRETA;
     }
 
-    for(int i = 0; i<8; i++){
-        aux = obter_peca(tab, 7, i);
+    for(int c = 0; c<8; c++){
+        aux = obter_peca(tab, c, 0);
         if(aux->peca == PEAO_BRANCO)
             aux->peca = RAINHA_BRANCA;
     }
@@ -267,16 +275,35 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
     int linhaDestino = 0;
     char peca;
     int verificador = 0;   // se 0 - jogada invalida, se 1 - jogada valida, se  2 - ambiguidade.
-    
+    int naoinserir = 0;
+
+    if(strcmp(jogada, "O-O") == 0 ){
+        printf("Roque");
+        linhaDestino = 1; // só p n dar erro. apagar dps;
+        verificador = 0;
+        naoinserir = 1;
+    }
+
+    else if ((strcmp(jogada, "O-O-O") == 0 ))
+    {
+        printf("Roque2");
+        linhaDestino = 1; // só p n dar erro. apagar dps;
+        naoinserir = 1;
+        verificador = 0;
+    }
+    else if((strcmp(jogada, "1-0") == 0) || (strcmp(jogada, "0-1") == 0 ) || (strcmp(jogada, "1/2-1/2") == 0 )){
+        return -1;
+    }
+
     // ler a jogada e definir o DESTINO da peça:
-    if(strlen(jogada) == 2) // peão
+    else if(strlen(jogada) == 2) // peão
     {
         peca = 'p';
         linhaDestino = jogada[1] - '0'; // converte em int
         colunaDestino = jogada[0];
     }
 
-    else if (strlen(jogada) == 4) // se a jogada tem tam = 4, ou é captura ou jogada de desambiguidade
+    else if ((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // se a jogada tem tam = 4, ou é captura ou jogada de desambiguidade
     {
         peca = jogada[0];
         colunaDestino = jogada[2];
@@ -295,6 +322,7 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
         }
         
     }
+
     else // demais jogadas
     {
         peca = jogada[0];
@@ -317,7 +345,10 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
     Casa *aux = tab->inicio;
     while(aux->prox != NULL) // procurar casa a casa uma peça válida para realizar a jogada
     {
-        if(aux->tipo == peca)
+        // se tem strlen = 4 (desambiguação) -> procurar linha
+        // jogada normal: procurar linha e coluna
+
+        if(aux->tipo == peca && aux->cor == cor[0])
         {
             
             if(peca == 'p') // PEAO 
@@ -350,39 +381,96 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
                     if (jogada[1] == 'x'){
                         linha = linhaDestino+1;  
                         coluna = converter_coluna_int(jogada[0]);
-                        verificador=1;
+                        verificador = 1;
                     }
                     else {
-                        if ((aux->col == colunaDestino) && ((aux->linha - linhaDestino) == 1 )){
+                        if ((aux->col == colunaDestino) && ((aux->linha - linhaDestino) == 2) && (aux->qntMov == 0)) // peão q ainda n se moveu pode se mexer 2 casas
+                        {
                             verificador++;
                             linha = aux->linha;
                         }
-                        else if ((aux->col == colunaDestino) && ((aux->linha - linhaDestino) == 2) && (aux->qntMov == 0)){
+                        else if ((aux->col == colunaDestino) && ((aux->linha - linhaDestino) == 1 ))
+                        {
                             verificador++;
                             linha = aux->linha;
                         }
+                        
                     }
                 }
             }
             
             else if (peca == 'N') // CAVALO
             {
+                if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // retirar ambiguidade
+                {
+                    if(aux->col == coluna)
+                        linha = aux->linha;
+                        verificador = 1;
+                }
+                else 
+                {
+                    if(abs(colunaDestino - aux->col) == 2 && abs(linhaDestino - aux->linha) == 1){
+                        linha = aux->linha;
+                        coluna = aux->col;
+                        verificador = 1;
+                    }
+                    else if (abs(colunaDestino - aux->col) == 1 && abs(linhaDestino - aux->linha) == 2){
+                        linha = aux->linha;
+                        coluna = aux->col;
+                        verificador = 1;
+                    }
+                }
 
             } 
 
             else if (peca == 'B') // BISPO
             {
+                /*if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // ambiguidade
+                {
+                    if(aux->col == coluna && aux->peca == 'B')
+                        printf("LINHA BISPO DENTRO: %d", linha);
+                        linha = aux->linha;
+                        verificador = 1;
+                }      
+                else if (aux->peca == 'B')// verificar as diagonais
+                {
+                    printf("COLUNA BISPO: %d \n", aux->col);
+
+
+                    coluna = aux->col;
+                    linha = aux->linha;
+                }*/
+  
             }
 
-            else if (peca == 'R') // TORRE
+            else if (peca == 'R') // TORRE esta ambigua kkk
             {
-
+                /*if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // ambiguidade prov n funciona
+                {
+                    linha = linhaDestino;
+                } 
+                else{
+                    if(aux->linha ==  linhaDestino){
+                        linha = linhaDestino;
+                        coluna = aux->col;
+                        verificador = 1;
+                    }
+                    else if(aux->col == colunaDestino){
+                        coluna = colunaDestino;
+                        linha = aux->linha;
+                        verificador = 1;
+                    }
+                }  */             
             }
-            else if(peca == 'K') // REI
+
+            else if (peca == 'K')
             {
-
+                if (aux->peca == 'K'){
+                    coluna = aux->col;
+                    linha = aux->linha;
+                }
             }
-            else if (peca == 'Q') // RAINHA
+            else if(peca == 'Q')
             {
 
             }
@@ -398,7 +486,7 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
     printf("%d\n", linhaDestino+1);
 
 
-    if(verificador == 1)  // insere no tab
+    if(verificador == 1 &&  naoinserir == 0)  // insere no tab
     { 
         inserir(tab, coluna, linha, colunaDestino, linhaDestino);
     }
@@ -417,7 +505,7 @@ void inserir(Tabuleiro *tab, int coluna, int linha, int colunaDestino, int linha
         ant->peca = VAZIO;
         ant->tipo = '\0';
 
-        //verificarPromocao(tab);
+        verificarPromocao(tab);
 }
 
 /* Funções Auxiliares */
