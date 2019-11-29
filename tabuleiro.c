@@ -1,8 +1,7 @@
 // Falta fazer (ou terminar)
 // - Promoção do Peão (CORRIGIR)
-// - Movimentação : BISPO, RAINHA, REI, TORRE
 // - ROQUE
-// - ambiguidade da torre
+// Função Verificar: (1) COLISÃO - peças estão pulando e não indo de casa em casa.
 
 // R - Torre
 // N - Cavalo
@@ -10,7 +9,8 @@
 // Q - Rainha
 // p - Peão 
 // B - Bispo
-
+// D - Roque Esquerda (O - O)
+// E - Roque Direita  (O - O - O)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -256,47 +256,44 @@ void verificarPromocao(Tabuleiro *tab){
 
     for(int c = 0; c<8; c++){
         aux = obter_peca(tab, c, 0);
-        if(aux->peca == PEAO_PRETO)
+        if(aux->peca == PEAO_PRETO){
             aux->peca = RAINHA_PRETA;
+            aux->tipo = 'Q';
+        }
     }
 
-    for(int c = 0; c<8; c++){
-        aux = obter_peca(tab, c, 0);
-        if(aux->peca == PEAO_BRANCO)
+    for(int c = 0; c < 8; c++){
+        aux = obter_peca(tab, c, 7);
+        if(aux->peca == PEAO_BRANCO){
             aux->peca = RAINHA_BRANCA;
+            aux->tipo = 'Q';
+        }       
     }
 }
 
 int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e definir as posições corretas
 {
-    int coluna = 0;
-    int linha = 0;
+    int coluna = 0, linha = 0, linhaDestino = 0;
     char colunaDestino = 0;
-    int linhaDestino = 0;
     char peca;
     int verificador = 0;   // se 0 - jogada invalida, se 1 - jogada valida, se  2 - ambiguidade.
-    int naoinserir = 0;
 
     if(strcmp(jogada, "O-O") == 0 ){
-        printf("Roque");
-        linhaDestino = 1; // só p n dar erro. apagar dps;
-        verificador = 0;
-        naoinserir = 1;
+        peca = 'E';
+        //verificador = 1;
     }
 
-    else if ((strcmp(jogada, "O-O-O") == 0 ))
-    {
-        printf("Roque2");
-        linhaDestino = 1; // só p n dar erro. apagar dps;
-        naoinserir = 1;
-        verificador = 0;
+    else if ((strcmp(jogada, "O-O-O") == 0 )){
+        peca = 'D';
+        //verificador = 1;
     }
+
     else if((strcmp(jogada, "1-0") == 0) || (strcmp(jogada, "0-1") == 0 ) || (strcmp(jogada, "1/2-1/2") == 0 )){
         return -1;
     }
 
     // ler a jogada e definir o DESTINO da peça:
-    else if(strlen(jogada) == 2) // peão
+    else if (strlen(jogada) == 2) // peão
     {
         peca = 'p';
         linhaDestino = jogada[1] - '0'; // converte em int
@@ -320,7 +317,6 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
             coluna = converter_coluna_int(jogada[1]);
             // precisa procurar a linha somente
         }
-        
     }
 
     else // demais jogadas
@@ -333,11 +329,10 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
     colunaDestino = converter_coluna_int(colunaDestino); // coluna recebe char, converter para int é necessário para utilizar a função de busca
     linhaDestino = linhaDestino - 1 ;// no caso da implementação, começamos com 0
 
-
     // pré-testes
-    if (colunaDestino > 7 || colunaDestino < 0) return 0; // fora dos limites do xadrez
-    if (linhaDestino > 7 || linhaDestino < 0) return 0;
-    Casa *teste = obter_peca(tab, colunaDestino, linhaDestino);
+    //if (colunaDestino > 7 || colunaDestino < 0) return 0; // fora dos limites do xadrez
+    //if (linhaDestino > 7 || linhaDestino < 0) return 0;
+    //Casa *teste = obter_peca(tab, colunaDestino, linhaDestino);
     //if(teste->peca != VAZIO  && jogada[1] != 'x') return 0; // querer colocar a peça em uma posição ocupada NAO TA FUNCUIONADO BLZ
 
 
@@ -425,52 +420,71 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
 
             else if (peca == 'B') // BISPO
             {
-                /*if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // ambiguidade
+                Casa *aux2 = obter_peca (tab, colunaDestino, linhaDestino);
+
+                if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // ambiguidade
                 {
-                    if(aux->col == coluna && aux->peca == 'B')
-                        printf("LINHA BISPO DENTRO: %d", linha);
+                    if(aux->col == coluna && aux->peca == 'B'){ // verificar se funciona (*)
                         linha = aux->linha;
                         verificador = 1;
+                    }
                 }      
-                else if (aux->peca == 'B')// verificar as diagonais
+                else if (aux->tipo == 'B' && aux->corFundo == aux2->corFundo) // para cada jogador, UM dos bispo só anda nas casas BRANCAS e o outros nas casas PRETAS
                 {
-                    printf("COLUNA BISPO: %d \n", aux->col);
-
-
                     coluna = aux->col;
                     linha = aux->linha;
-                }*/
+                    verificador = 1;
+                }
   
             }
 
-            else if (peca == 'R') // TORRE esta ambigua kkk
+            else if (peca == 'R') // TORRE
             {
-                /*if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) // ambiguidade prov n funciona
+                if((strlen(jogada) == 4) && (jogada[3] != '+') && (jogada[3] != '?')) 
                 {
                     linha = linhaDestino;
                 } 
                 else{
-                    if(aux->linha ==  linhaDestino){
+                    if(aux->tipo == 'R' && aux->linha ==  linhaDestino){
                         linha = linhaDestino;
                         coluna = aux->col;
                         verificador = 1;
                     }
-                    else if(aux->col == colunaDestino){
+                    else if(aux->tipo == 'R' && aux->col == colunaDestino){
                         coluna = colunaDestino;
                         linha = aux->linha;
                         verificador = 1;
                     }
-                }  */             
+                }              
             }
 
-            else if (peca == 'K')
+            else if (peca == 'K') // REI
             {
-                if (aux->peca == 'K'){
+                if ( (abs(colunaDestino - coluna) + abs(linhaDestino - linha)) > 2 || (abs(colunaDestino - coluna) == 2 || abs(linhaDestino - linha) == 2)) 
+                // rei se movimentando mais do que uma casa
+                    return 0;
+
+                else if (aux->tipo == 'K'){
                     coluna = aux->col;
                     linha = aux->linha;
                 }
             }
-            else if(peca == 'Q')
+
+            else if(peca == 'Q') // RAINHA
+            {
+                if(aux->tipo == 'Q'){
+                    coluna = aux->col;
+                    linha = aux->linha;
+                    verificador = 1;
+                }
+            }
+
+            else if (peca == 'E') // roque a ESQUERDA
+            {
+
+            }
+
+            else if (peca == 'D') // roque a DIREITA
             {
 
             }
@@ -486,7 +500,7 @@ int testar(Tabuleiro *tab, char *jogada, char *cor) // verificar jogadas e defin
     printf("%d\n", linhaDestino+1);
 
 
-    if(verificador == 1 &&  naoinserir == 0)  // insere no tab
+    if(verificador == 1)  // insere no tab
     { 
         inserir(tab, coluna, linha, colunaDestino, linhaDestino);
     }
