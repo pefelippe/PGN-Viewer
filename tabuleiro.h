@@ -27,9 +27,10 @@ typedef struct tabuleiro{
 // Funções Essenciais
     void iniciarXadrez (Tabuleiro *tab, char const *arquivo);
     void printarTabuleiro (Tabuleiro *tab);
-    void lerJogada(Tabuleiro *tab, char *jogada, char  *cor, int numero);
+    int lerJogada(Tabuleiro *tab, char *jogada, char  *cor, int numero);
     void inserir(Tabuleiro *tab, int coluna, int linha, int colunaDestino, int linhaDestino, char *jogada);
     int testar(Tabuleiro *tab, char *jogada, char *cor);
+    int roque(Tabuleiro *tab, char *jogada, char *cor);
 // Funções Auxiliares
     Casa* obter_peca (Tabuleiro *tab, int col, int linha); 
     wint_t obter_cor_peca (Tabuleiro *tab, int col, int linha);
@@ -38,7 +39,6 @@ typedef struct tabuleiro{
     int converter_coluna_int (char c);
     int checar_coluna(Tabuleiro *Tab, int coluna, int linhaOrigem, int linhaDestino);
     int checar_linha(Tabuleiro *tab, int linha, int colunaOrigem, int colunaDestino);
-    int roque(Tabuleiro *tab, char *jogada, char *cor);
-
+    int checar_diagonal(Tabuleiro *tab, int coluna, int linha, int colunaDestino, int linhaDestino);
     
 
