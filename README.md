@@ -4,6 +4,7 @@
 ## Como Rodar
 Linux:
 ```
+   make
   ./main jogada.pgn
 ```
 
