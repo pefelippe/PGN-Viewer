@@ -1,8 +1,7 @@
-# Chess Game - Xadrez
->Lê um arquivo PGN e atualiza na tela as jogadas.
+# Xadrez
+>Projeto Xadrez, no qual o mesmo lê um arquivo .PGN com as jogadas e deve executá-las no terminal.
 
-## Como Rodar
-Linux:
+## Como Rodar:
 ```
    make
   ./main jogada.pgn
