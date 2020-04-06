@@ -1,5 +1,5 @@
 # Xadrez
->Projeto Xadrez, no qual o mesmo lê um arquivo .PGN com as jogadas e deve executá-las no terminal.
+> Visualizador de arquivos PGN. Roda uma simulação do jogo lendo as jogadas do arquivo.
 
 ## Como Rodar:
 ```
