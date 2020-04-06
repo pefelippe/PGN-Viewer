@@ -6,6 +6,7 @@
    make
   ./main jogada.pgn
 ```
+   OBS: Alguns arquivos PGN de exemplo estão presentes no repositório.
 
 ## Links Úteis:
   Formato PGN:  https://pt.wikipedia.org/wiki/Portable_Game_Notation <p>
