@@ -193,15 +193,15 @@ void printarTabuleiro(Tabuleiro *tab)
 {   
     setlocale(LC_CTYPE, "");
 
-    printf("\n     SIMULAÇÃO XADREZ  \n\n");
+    printf("\t       SIMULAÇÃO XADREZ  \n\n");
     for (int l = 0; l < 8; l = l+2)
     {
-        printf("%d ", l+1);
+        printf("\t%d ", l+1);
         printf(" %lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc\n", CASA_ESCURA, obter_cor_peca(tab, 0, l), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 1, l), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 2, l), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 3, l), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 4, l), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 5, l), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 6, l), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 7, l), CASA_CLARA);
-        printf("%d ", l+2);
+        printf("\t%d ", l+2);
         printf(" %lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc%lc\n", CASA_CLARA, obter_cor_peca(tab, 0, l+1), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 1, l+1), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 2, l+1), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 3, l+1), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 4, l+1), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 5, l+1), CASA_ESCURA, CASA_CLARA, obter_cor_peca(tab, 6, l+1), CASA_CLARA, CASA_ESCURA, obter_cor_peca(tab, 7, l+1), CASA_ESCURA);
    }
-    printf("    a  b  c  d  e  f  g  h  \n");
+    printf("\t    a  b  c  d  e  f  g  h  \n");
 }
 
 void iniciarXadrez(Tabuleiro *tab, char const *arquivo)
@@ -246,8 +246,8 @@ int lerJogada(Tabuleiro *tab, char *jogada, char  *cor, int numero, int aux)
     if ((testar(tab, jogada, cor)) == 1)
     {
         printarTabuleiro(tab);
-        printf("\n   Jogada %s (%d): %s \n\t \n", cor, numero, jogada);
-        printf("Pressione ENTER para ver a próxima jogada. \n");
+        printf("\t   Jogada %s (%d): %s \n\t \n", cor, numero, jogada);
+        printf("\n   Pressione ENTER para ver a próxima jogada.");
         getchar();
     } 
 
